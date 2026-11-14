@@ -31,12 +31,6 @@ import com.lodkin.dartstrainer.theme.TileBg
 import com.lodkin.dartstrainer.theme.TileBgDark
 import kotlinx.coroutines.launch
 
-/**
- * Настройки тренировочного раздела.
- *
- * Здесь только то, что касается тренировки.
- * Общие настройки приложения — в SettingsScreen.
- */
 @Composable
 fun TrainingSettingsScreen(
     repository: TrainingRepository,
@@ -45,11 +39,6 @@ fun TrainingSettingsScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    // Все три блока принудительно выключены (в разработке)
-    var warmupOn by remember { mutableStateOf(false) }
-    var psychologyOn by remember { mutableStateOf(false) }
-    var strengthOn by remember { mutableStateOf(false) }
 
     var showResetDialog by remember { mutableStateOf(false) }
     var resetDone by remember { mutableStateOf(false) }
@@ -71,7 +60,6 @@ fun TrainingSettingsScreen(
             .background(Color(0xFF0D1117))
             .padding(16.dp)
     ) {
-        // ── Верхняя панель ──
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
@@ -99,7 +87,6 @@ fun TrainingSettingsScreen(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            // ── Раздел «Блоки тренировки» ──
             Text(
                 "БЛОКИ ТРЕНИРОВКИ",
                 color = Accent,
@@ -115,18 +102,16 @@ fun TrainingSettingsScreen(
             )
             Spacer(Modifier.height(12.dp))
 
-            // РАЗМИНКА - В РАЗРАБОТКЕ
             BlockToggleRow(
                 icon = "🔥",
                 title = "Разминка",
                 subtitle = "Появится в следующем обновлении",
-                checked = warmupOn,
+                checked = false,
                 enabled = false,
                 onToggle = { inDevelopmentTitle = "Разминка"; showInDevelopmentDialog = true }
             )
             Spacer(Modifier.height(10.dp))
 
-            // ОСНОВНАЯ ЧАСТЬ - ВСЕГДА ВКЛЮЧЕНА
             BlockToggleRow(
                 icon = "🎯",
                 title = "Основная часть",
@@ -137,30 +122,27 @@ fun TrainingSettingsScreen(
             )
             Spacer(Modifier.height(10.dp))
 
-            // ПСИХОЛОГИЯ - В РАЗРАБОТКЕ
             BlockToggleRow(
                 icon = "🧠",
                 title = "Психология",
                 subtitle = "Появится в следующем обновлении",
-                checked = psychologyOn,
+                checked = false,
                 enabled = false,
                 onToggle = { inDevelopmentTitle = "Психология"; showInDevelopmentDialog = true }
             )
             Spacer(Modifier.height(10.dp))
 
-            // СИЛОВАЯ - В РАЗРАБОТКЕ
             BlockToggleRow(
                 icon = "💪",
                 title = "Силовая",
                 subtitle = "Появится в следующем обновлении",
-                checked = strengthOn,
+                checked = false,
                 enabled = false,
                 onToggle = { inDevelopmentTitle = "Силовая"; showInDevelopmentDialog = true }
             )
 
             Spacer(Modifier.height(28.dp))
 
-            // ── Раздел «Сброс данных тренировки» ──
             Text(
                 "СБРОС ДАННЫХ ТРЕНИРОВКИ",
                 color = Accent,
@@ -230,7 +212,6 @@ fun TrainingSettingsScreen(
         }
     }
 
-    // ── Диалог подтверждения сброса ──
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
@@ -280,7 +261,6 @@ fun TrainingSettingsScreen(
         )
     }
     
-    // ── Диалог "В разработке" ──
     if (showInDevelopmentDialog) {
         AlertDialog(
             onDismissRequest = { showInDevelopmentDialog = false },
@@ -304,10 +284,6 @@ fun TrainingSettingsScreen(
     }
 }
 
-// ─────────────────────────────────────────────
-// Строка с переключателем блока
-// ─────────────────────────────────────────────
-
 @Composable
 private fun BlockToggleRow(
     icon: String,
@@ -315,14 +291,14 @@ private fun BlockToggleRow(
     subtitle: String,
     checked: Boolean,
     enabled: Boolean,
-    onToggle: (Boolean) -> Unit
+    onToggle: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(TileBgDark)
-            .clickable(enabled = true) { onToggle(!checked) }
+            .clickable { onToggle() }
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -348,7 +324,7 @@ private fun BlockToggleRow(
         if (enabled) {
             Switch(
                 checked = checked,
-                onCheckedChange = { onToggle(it) },
+                onCheckedChange = { onToggle() },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color(0xFF121212),
                     checkedTrackColor = Accent,
