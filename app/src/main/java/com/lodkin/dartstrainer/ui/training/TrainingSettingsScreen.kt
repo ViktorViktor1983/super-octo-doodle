@@ -43,11 +43,10 @@ fun TrainingSettingsScreen(
     var showResetDialog by remember { mutableStateOf(false) }
     var resetDone by remember { mutableStateOf(false) }
     
-    // Диалог для "в разработке"
     var showInDevelopmentDialog by remember { mutableStateOf(false) }
     var inDevelopmentTitle by remember { mutableStateOf("") }
 
-    // При загрузке экрана принудительно отключаем блоки в хранилище
+    // При загрузке экрана принудительно отключаем блоки
     LaunchedEffect(Unit) {
         TrainingBlocksStorage.setWarmupEnabled(context, false)
         TrainingBlocksStorage.setPsychologyEnabled(context, false)
@@ -102,43 +101,39 @@ fun TrainingSettingsScreen(
             )
             Spacer(Modifier.height(12.dp))
 
-            BlockToggleRow(
+            // Разминка (в разработке)
+            DisabledBlockRow(
                 icon = "🔥",
                 title = "Разминка",
                 subtitle = "Появится в следующем обновлении",
-                checked = false,
-                enabled = false,
-                onToggle = { inDevelopmentTitle = "Разминка"; showInDevelopmentDialog = true }
+                onClick = { inDevelopmentTitle = "Разминка"; showInDevelopmentDialog = true }
             )
             Spacer(Modifier.height(10.dp))
 
-            BlockToggleRow(
+            // Основная часть (всегда включена)
+            DisabledBlockRow(
                 icon = "🎯",
                 title = "Основная часть",
                 subtitle = "Это суть тренировки, её нельзя отключить",
-                checked = true,
-                enabled = false,
-                onToggle = { }
+                onClick = { }
             )
             Spacer(Modifier.height(10.dp))
 
-            BlockToggleRow(
+            // Психология (в разработке)
+            DisabledBlockRow(
                 icon = "🧠",
                 title = "Психология",
                 subtitle = "Появится в следующем обновлении",
-                checked = false,
-                enabled = false,
-                onToggle = { inDevelopmentTitle = "Психология"; showInDevelopmentDialog = true }
+                onClick = { inDevelopmentTitle = "Психология"; showInDevelopmentDialog = true }
             )
             Spacer(Modifier.height(10.dp))
 
-            BlockToggleRow(
+            // Силовая (в разработке)
+            DisabledBlockRow(
                 icon = "💪",
                 title = "Силовая",
                 subtitle = "Появится в следующем обновлении",
-                checked = false,
-                enabled = false,
-                onToggle = { inDevelopmentTitle = "Силовая"; showInDevelopmentDialog = true }
+                onClick = { inDevelopmentTitle = "Силовая"; showInDevelopmentDialog = true }
             )
 
             Spacer(Modifier.height(28.dp))
@@ -168,18 +163,7 @@ fun TrainingSettingsScreen(
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        "✅ Данные тренировок сброшены",
-                        color = Accent,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "Уровень, слабые места, темп — всё начнётся заново.",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 12.sp
-                    )
+                    Text("✅ Данные тренировок сброшены", color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
             } else {
                 Box(
@@ -192,18 +176,7 @@ fun TrainingSettingsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            "Сбросить тренировочные данные",
-                            color = ErrorColor,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            "Уровень, слабое место, темп — начнётся заново",
-                            color = Color.White.copy(alpha = 0.5f),
-                            fontSize = 11.sp
-                        )
+                        Text("Сбросить тренировочные данные", color = ErrorColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -216,29 +189,8 @@ fun TrainingSettingsScreen(
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
             containerColor = TileBgDark,
-            title = {
-                Text(
-                    "Сбросить данные тренировки?",
-                    color = GoldAccent,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Text(
-                    "Будут удалены:\n" +
-                            "• все тренировочные сессии\n" +
-                            "• результаты всех упражнений\n" +
-                            "• снимки уровня и потенциала\n" +
-                            "• отложенные даблы\n" +
-                            "• уровень ботов в тренировке\n\n" +
-                            "Игровая статистика («Просто поиграть») останется. " +
-                            "Настройки блоков — тоже.",
-                    color = Color.White,
-                    fontSize = 13.sp,
-                    lineHeight = 19.sp
-                )
-            },
+            title = { Text("Сбросить данные тренировки?", color = GoldAccent, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+            text = { Text("Будут удалены все тренировочные сессии и результаты.", color = Color.White, fontSize = 13.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     showResetDialog = false
@@ -249,15 +201,9 @@ fun TrainingSettingsScreen(
                         resetDone = true
                         onAfterReset()
                     }
-                }) {
-                    Text("СБРОСИТЬ", color = ErrorColor, fontWeight = FontWeight.Bold)
-                }
+                }) { Text("СБРОСИТЬ", color = ErrorColor, fontWeight = FontWeight.Bold) }
             },
-            dismissButton = {
-                TextButton(onClick = { showResetDialog = false }) {
-                    Text("Отмена", color = Accent)
-                }
-            }
+            dismissButton = { TextButton(onClick = { showResetDialog = false }) { Text("Отмена", color = Accent) } }
         )
     }
     
@@ -265,90 +211,55 @@ fun TrainingSettingsScreen(
         AlertDialog(
             onDismissRequest = { showInDevelopmentDialog = false },
             containerColor = TileBgDark,
-            confirmButton = {
-                TextButton(onClick = { showInDevelopmentDialog = false }) {
-                    Text("Понятно", color = Accent, fontWeight = FontWeight.Bold)
-                }
-            },
-            title = {
-                Text("В разработке", color = GoldAccent, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            },
-            text = {
-                Text(
-                    "Раздел «$inDevelopmentTitle» появится в следующем обновлении приложения. Следите за новостями!",
-                    color = Color.White,
-                    fontSize = 14.sp
-                )
-            }
+            confirmButton = { TextButton(onClick = { showInDevelopmentDialog = false }) { Text("Понятно", color = Accent, fontWeight = FontWeight.Bold) } },
+            title = { Text("В разработке", color = GoldAccent, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+            text = { Text("Раздел «$inDevelopmentTitle» появится в следующем обновлении приложения. Следите за новостями!", color = Color.White, fontSize = 14.sp) }
         )
     }
 }
 
+// --- НОВАЯ ФУНКЦИЯ: Всегда рисует неактивный вид (серый) ---
 @Composable
-private fun BlockToggleRow(
+private fun DisabledBlockRow(
     icon: String,
     title: String,
     subtitle: String,
-    checked: Boolean,
-    enabled: Boolean,
-    onToggle: () -> Unit
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(TileBgDark)
-            .clickable { onToggle() }
+            .clickable { onClick() }
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(icon, fontSize = 20.sp)
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                title,
-                color = if (enabled) Color.White else Color.White.copy(alpha = 0.5f),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium
-            )
+            Text(title, color = Color.White.copy(alpha = 0.5f), fontSize = 15.sp, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(2.dp))
-            Text(
-                subtitle,
-                color = if (enabled) Color.White.copy(alpha = 0.55f)
-                else Color.White.copy(alpha = 0.35f),
-                fontSize = 11.sp
-            )
+            Text(subtitle, color = Color.White.copy(alpha = 0.35f), fontSize = 11.sp)
         }
         Spacer(Modifier.width(8.dp))
 
-        if (enabled) {
-            Switch(
-                checked = checked,
-                onCheckedChange = { onToggle() },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF121212),
-                    checkedTrackColor = Accent,
-                    uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
-                    uncheckedTrackColor = TileBg
-                )
-            )
-        } else {
+        // ВСЕГДА рисуем серый выключенный переключатель
+        Box(
+            modifier = Modifier
+                .width(52.dp)
+                .height(32.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.White.copy(alpha = 0.15f))
+        ) {
             Box(
                 modifier = Modifier
-                    .width(52.dp)
-                    .height(32.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(GoldAccent.copy(alpha = 0.25f))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(top = 2.dp, end = 2.dp)
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(GoldAccent.copy(alpha = 0.8f))
-                        .align(Alignment.CenterEnd)
-                )
-            }
+                    .padding(top = 2.dp, start = 2.dp)
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color.White.copy(alpha = 0.3f))
+                    .align(Alignment.CenterStart)
+            )
         }
     }
 }
