@@ -46,8 +46,8 @@ fun TrainingSettingsScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var warmupOn by remember { mutableStateOf(TrainingBlocksStorage.isWarmupEnabled(context)) }
-    // Психология и Силовая пока в разработке (принудительно false)
+    // Все три блока принудительно выключены (в разработке)
+    var warmupOn by remember { mutableStateOf(false) }
     var psychologyOn by remember { mutableStateOf(false) }
     var strengthOn by remember { mutableStateOf(false) }
 
@@ -56,6 +56,14 @@ fun TrainingSettingsScreen(
     
     // Диалог для "в разработке"
     var showInDevelopmentDialog by remember { mutableStateOf(false) }
+    var inDevelopmentTitle by remember { mutableStateOf("") }
+
+    // При загрузке экрана принудительно отключаем блоки в хранилище
+    LaunchedEffect(Unit) {
+        TrainingBlocksStorage.setWarmupEnabled(context, false)
+        TrainingBlocksStorage.setPsychologyEnabled(context, false)
+        TrainingBlocksStorage.setStrengthEnabled(context, false)
+    }
 
     Column(
         modifier = Modifier
@@ -101,29 +109,28 @@ fun TrainingSettingsScreen(
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                "Отключи блоки, которые тебе не нужны. Программа будет их пропускать.",
+                "В этой версии доступна только основная часть. Остальные блоки появятся в следующих обновлениях.",
                 color = Color.White.copy(alpha = 0.6f),
                 fontSize = 12.sp
             )
             Spacer(Modifier.height(12.dp))
 
+            // РАЗМИНКА - В РАЗРАБОТКЕ
             BlockToggleRow(
                 icon = "🔥",
                 title = "Разминка",
-                subtitle = "Разогрев мышц и настройка техники",
+                subtitle = "Появится в следующем обновлении",
                 checked = warmupOn,
-                enabled = true,
-                onToggle = {
-                    warmupOn = it
-                    TrainingBlocksStorage.setWarmupEnabled(context, it)
-                }
+                enabled = false,
+                onToggle = { inDevelopmentTitle = "Разминка"; showInDevelopmentDialog = true }
             )
             Spacer(Modifier.height(10.dp))
 
+            // ОСНОВНАЯ ЧАСТЬ - ВСЕГДА ВКЛЮЧЕНА
             BlockToggleRow(
                 icon = "🎯",
                 title = "Основная часть",
-                subtitle = "Нельзя отключить — это суть тренировки",
+                subtitle = "Это суть тренировки, её нельзя отключить",
                 checked = true,
                 enabled = false,
                 onToggle = { }
@@ -136,8 +143,8 @@ fun TrainingSettingsScreen(
                 title = "Психология",
                 subtitle = "Появится в следующем обновлении",
                 checked = psychologyOn,
-                enabled = false, // Отключаем возможность переключения
-                onToggle = { showInDevelopmentDialog = true }
+                enabled = false,
+                onToggle = { inDevelopmentTitle = "Психология"; showInDevelopmentDialog = true }
             )
             Spacer(Modifier.height(10.dp))
 
@@ -147,8 +154,8 @@ fun TrainingSettingsScreen(
                 title = "Силовая",
                 subtitle = "Появится в следующем обновлении",
                 checked = strengthOn,
-                enabled = false, // Отключаем возможность переключения
-                onToggle = { showInDevelopmentDialog = true }
+                enabled = false,
+                onToggle = { inDevelopmentTitle = "Силовая"; showInDevelopmentDialog = true }
             )
 
             Spacer(Modifier.height(28.dp))
@@ -288,7 +295,7 @@ fun TrainingSettingsScreen(
             },
             text = {
                 Text(
-                    "Этот раздел появится в следующем обновлении приложения. Следите за новостями!",
+                    "Раздел «$inDevelopmentTitle» появится в следующем обновлении приложения. Следите за новостями!",
                     color = Color.White,
                     fontSize = 14.sp
                 )
