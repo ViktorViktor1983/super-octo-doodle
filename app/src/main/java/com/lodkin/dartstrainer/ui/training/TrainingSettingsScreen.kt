@@ -47,11 +47,15 @@ fun TrainingSettingsScreen(
     val scope = rememberCoroutineScope()
 
     var warmupOn by remember { mutableStateOf(TrainingBlocksStorage.isWarmupEnabled(context)) }
-    var psychologyOn by remember { mutableStateOf(TrainingBlocksStorage.isPsychologyEnabled(context)) }
-    var strengthOn by remember { mutableStateOf(TrainingBlocksStorage.isStrengthEnabled(context)) }
+    // Психология и Силовая пока в разработке (принудительно false)
+    var psychologyOn by remember { mutableStateOf(false) }
+    var strengthOn by remember { mutableStateOf(false) }
 
     var showResetDialog by remember { mutableStateOf(false) }
     var resetDone by remember { mutableStateOf(false) }
+    
+    // Диалог для "в разработке"
+    var showInDevelopmentDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -126,29 +130,25 @@ fun TrainingSettingsScreen(
             )
             Spacer(Modifier.height(10.dp))
 
+            // ПСИХОЛОГИЯ - В РАЗРАБОТКЕ
             BlockToggleRow(
                 icon = "🧠",
                 title = "Психология",
-                subtitle = "Дыхание, визуализация, ритуал",
+                subtitle = "Появится в следующем обновлении",
                 checked = psychologyOn,
-                enabled = true,
-                onToggle = {
-                    psychologyOn = it
-                    TrainingBlocksStorage.setPsychologyEnabled(context, it)
-                }
+                enabled = false, // Отключаем возможность переключения
+                onToggle = { showInDevelopmentDialog = true }
             )
             Spacer(Modifier.height(10.dp))
 
+            // СИЛОВАЯ - В РАЗРАБОТКЕ
             BlockToggleRow(
                 icon = "💪",
                 title = "Силовая",
-                subtitle = "Упражнения с гантелями и эспандером",
+                subtitle = "Появится в следующем обновлении",
                 checked = strengthOn,
-                enabled = true,
-                onToggle = {
-                    strengthOn = it
-                    TrainingBlocksStorage.setStrengthEnabled(context, it)
-                }
+                enabled = false, // Отключаем возможность переключения
+                onToggle = { showInDevelopmentDialog = true }
             )
 
             Spacer(Modifier.height(28.dp))
@@ -272,6 +272,29 @@ fun TrainingSettingsScreen(
             }
         )
     }
+    
+    // ── Диалог "В разработке" ──
+    if (showInDevelopmentDialog) {
+        AlertDialog(
+            onDismissRequest = { showInDevelopmentDialog = false },
+            containerColor = TileBgDark,
+            confirmButton = {
+                TextButton(onClick = { showInDevelopmentDialog = false }) {
+                    Text("Понятно", color = Accent, fontWeight = FontWeight.Bold)
+                }
+            },
+            title = {
+                Text("В разработке", color = GoldAccent, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Text(
+                    "Этот раздел появится в следующем обновлении приложения. Следите за новостями!",
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
+            }
+        )
+    }
 }
 
 // ─────────────────────────────────────────────
@@ -292,7 +315,7 @@ private fun BlockToggleRow(
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(TileBgDark)
-            .clickable(enabled = enabled) { onToggle(!checked) }
+            .clickable(enabled = true) { onToggle(!checked) }
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
